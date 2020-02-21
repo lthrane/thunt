@@ -10,13 +10,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 )
 
 // Mission represents a treasure hunt that can be undertaken
 type Mission struct {
-	ID          uuid.UUID `json:id`
-	Name        string    `json:name`
-	Description string    `json:description`
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
 }
 
 var mutex sync.RWMutex
@@ -112,9 +113,32 @@ func listMissions(resp http.ResponseWriter, rqst *http.Request) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	if encode(resp, missionByID) != nil {
+	if err := encodeRaw(resp, "["); err != nil {
+		Error.Printf("listMissions: %v", err)
 		resp.WriteHeader(http.StatusServiceUnavailable)
-		return
+	}
+
+	empty := true
+	for _, mission := range missionByID {
+		if !empty {
+			if err := encodeRaw(resp, ","); err != nil {
+				Error.Printf("listMissions: %v", err)
+				resp.WriteHeader(http.StatusServiceUnavailable)
+			}
+		}
+
+		if encode(resp, mission) != nil {
+			Error.Printf("can't emit element: %v", mission)
+			resp.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+
+		empty = false
+	}
+
+	if err := encodeRaw(resp, "]"); err != nil {
+		Error.Printf("listMissions: %v", err)
+		resp.WriteHeader(http.StatusServiceUnavailable)
 	}
 }
 
@@ -123,8 +147,15 @@ func encode(resp http.ResponseWriter, v interface{}) error {
 	encoder.SetEscapeHTML(true)
 	err := encoder.Encode(v)
 	if err != nil {
-		Error.Printf("Encode: %v", err)
-		return err
+		return errors.Errorf("Encode: %v", err)
+	}
+	return nil
+}
+
+func encodeRaw(resp http.ResponseWriter, s string) error {
+	nBytes, err := resp.Write([]byte(s))
+	if nBytes != len(s) || err != nil {
+		return errors.Errorf("can't emit %s", s)
 	}
 	return nil
 }
