@@ -31,6 +31,8 @@ func main() {
 	router.HandleFunc("/mission", putMission).Methods("PUT")
 	router.HandleFunc("/mission/{id}", getMission).Methods("GET")
 	router.HandleFunc("/mission/{id}", deleteMission).Methods("DELETE")
+
+	Info.Printf("starting server")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
