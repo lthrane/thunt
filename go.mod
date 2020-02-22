@@ -1,4 +1,4 @@
-module github.com/lthrane/go-rest-api
+module github.com/lthrane/thunt
 
 go 1.13
 
