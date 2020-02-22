@@ -1,8 +1,0 @@
-version: v1beta2
-containers:
-- name: thunt
-  image: lthrane/thunt
-  ports:
-  - name: http
-    hostPort: 80
-    containerPort: 8080
