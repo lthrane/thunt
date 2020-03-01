@@ -1,2 +1,2 @@
-# thunt
-Treasure hunt
+# thunt-server
+Treasure Hunt
