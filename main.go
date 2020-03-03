@@ -26,10 +26,8 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	missionHandler := NewMissionHandler(client, router)
-	if missionHandler == nil {
-		log.Fatal("no missionHandler")
-	}
+	NewMissionHandler(client, router)
+	NewHuntHandler(client, router)
 
 	Info.Printf("starting server")
 	log.Fatal(http.ListenAndServe(":8080", router))

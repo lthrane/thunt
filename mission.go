@@ -7,7 +7,7 @@ import (
 
 // Mission represents a treasure hunt that can be undertaken
 type Mission struct {
-	ID          int64  `json:"id" datastore:"id"`
+	ID          int64  `json:"ID" datastore:"-"`
 	Name        string `json:"name" datastore:"name"`
 	Description string `json:"description" datastore:"description"`
 }
