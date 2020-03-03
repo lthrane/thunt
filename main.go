@@ -12,14 +12,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var client *datastore.Client
-
 func main() {
 	ctx := context.Background()
 
 	projectID := "thunt-269016"
 	var err error
-	client, err = datastore.NewClient(ctx, projectID)
+	client, err := datastore.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatalf("failed to create Datastore client: %v", err)
 	}
@@ -27,7 +25,11 @@ func main() {
 	Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stdout)
 
 	router := mux.NewRouter().StrictSlash(true)
-	register(router)
+
+	missionHandler := NewMissionHandler(client, router)
+	if missionHandler == nil {
+		log.Fatal("no missionHandler")
+	}
 
 	Info.Printf("starting server")
 	log.Fatal(http.ListenAndServe(":8080", router))
